@@ -3,7 +3,7 @@ const express = require('express');
 
 const User = require('../models/user.js');
 
-const newBooknpm = async(req, res) => {
+const newBook = async(req, res) => {
     try {
         res.render('books/new.ejs');
     } catch (err) {
