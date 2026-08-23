@@ -91,7 +91,7 @@ const update = async(req, res) => {
 const index = async(req, res) => {
     try {
         const user = await User.findById(req.params.userId);
-        res.render('bookss/index.ejs', { pantry: user.pantry });
+        res.render('books/index.ejs', { pantry: user.pantry });
     } catch (err) {
         res.redirect('/')
     }
