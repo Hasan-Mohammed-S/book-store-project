@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+    <link rel="stylesheet" href="/stylesheets/show.css" />
+
+    <title>
+        Your Pantry
+    </title>
+</head>
+
+<body>
+    <%- include('../partials/_navbar.ejs') %>
+     <h1><%= user.username %>'s Pantry</h1>
+
+<a href="/users">Back to Community</a>
+
+<ul>
+    <% user.pantry.forEach((book) => { %>
+        <li>
+            <%= book.name %>
+        </li>
+    <% }) %>
+</ul>
+</body>
+
+</html>
