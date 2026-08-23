@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    pantry: [bookSchema]
+    books: [bookSchema]
 });
 
 const User = mongoose.model('User', userSchema);

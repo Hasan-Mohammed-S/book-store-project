@@ -8,18 +8,18 @@
     <link rel="stylesheet" href="/stylesheets/show.css" />
 
     <title>
-        Your Pantry
+        Your books
     </title>
 </head>
 
 <body>
     <%- include('../partials/_navbar.ejs') %>
-     <h1><%= user.username %>'s Pantry</h1>
+     <h1><%= user.username %>'s books</h1>
 
 <a href="/users">Back to Community</a>
 
 <ul>
-    <% user.pantry.forEach((book) => { %>
+    <% user.books.forEach((book) => { %>
         <li>
             <%= book.name %>
         </li>

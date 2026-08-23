@@ -15,8 +15,7 @@
 
         <form action="/users/<%=user._id%>/Books" method="POST">
 
-            <label for="img">Book Img:</label>
-            <input type="image" name="img" id="img" />
+           
 
             <label for="name">Book Name:</label>
             <input type="text" name="name" id="name" />
@@ -24,6 +23,11 @@
              <label for="wraiterName">Book Writer:</label>
             <input type="text" name="wraiterName" id="wraiterName" />
 
+            <label for="img">Book Img:</label>
+         <!--<input type="image" name="img" id="img" />-->
+                <input type="file" id="imageUpload" name="image" accept="image/*" required />
+
+            
             <button type="submit">Add the Book</button>
         </form>
 </body>

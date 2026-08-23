@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/stylesheets/show.css" />
 
     <title>
-        Your Pantry
+        Your books
     </title>
 </head>
 
@@ -19,13 +19,17 @@
                 <h1>
                     <%= book.name %>
                 </h1>
+ 
+                <a><%= book.img %></a>
+                                    
                 <div class="show-sidebar">
+                   
                     <div class="show-actions">
                         <a href="/users/<%= user._id %>/books/<%= book._id %>/edit">
             Edit App
           </a>
                         <form action="/users/<%= user._id %>/books/<%= book._id %>?_method=DELETE" method="POST">
-                            <button type="submit">Delete App</button>
+                            <button type="submit">Delete the Book</button>
                         </form>
                     </div>
 

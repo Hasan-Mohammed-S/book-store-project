@@ -16,8 +16,8 @@ const newBook = async(req, res) => {
 const show = async(req, res) => {
     try {
         const user = await User.findById(req.params.userId);
-        const book = user.pantry.id(req.params.bookId);
-
+        const book = user.books.id(req.params.bookId);
+             const img=user.books.img(req.params.bookImg)
         res.render('books/show.ejs', { book });
     } catch (err) {
         console.log(err);
@@ -31,7 +31,7 @@ const create = async(req, res) => {
     try {
         const user = await User.findById(req.params.userId);
         console.log(user)
-        user.pantry.push(req.body);
+        user.books.push(req.body);
         await user.save();
 
         res.redirect(`/users/${req.params.userId}/books`);
@@ -46,7 +46,7 @@ const create = async(req, res) => {
 const deleteBook = async(req, res) => {
     try {
         const user = await User.findById(req.params.userId);
-        user.pantry.pull(req.params.bookId);
+        user.books.pull(req.params.bookId);
 
         await user.save();
 
@@ -60,7 +60,7 @@ const deleteBook = async(req, res) => {
 const edit = async(req, res) => {
     try {
         const user = await User.findById(req.params.userId);
-        const book = user.pantry.id(req.params.bookId);
+        const book = user.books.id(req.params.bookId);
 
         res.render('books/edit.ejs', { book });
     } catch (err) {
@@ -74,7 +74,7 @@ const edit = async(req, res) => {
 const update = async(req, res) => {
     try {
         const user = await User.findById(req.params.userId);
-        const book = user.pantry.id(req.params.bookId);
+        const book = user.books.id(req.params.bookId);
 
         book.set(req.body);
 
@@ -91,7 +91,7 @@ const update = async(req, res) => {
 const index = async(req, res) => {
     try {
         const user = await User.findById(req.params.userId);
-        res.render('books/index.ejs', { pantry: user.pantry });
+        res.render('books/index.ejs', { books: user.books });
     } catch (err) {
         res.redirect('/')
     }
