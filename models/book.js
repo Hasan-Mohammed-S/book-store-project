@@ -5,31 +5,35 @@ const bookSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+
     description: {
-        type: String
+        type: String,
     },
-writer:{
-    type: String,
+
+    writer: {
+        type: String,
         required: true,
-},
-     price: {
+    },
+
+    price: {
         type: Number,
         required: true,
         min: 0,
     },
+
     image: {
         url: {
             type: String,
             required: true,
         },
+
         publicId: {
             type: String,
             required: true,
         },
-    }
-   
+    },
 });
 
-const books = mongoose.model("book", bookSchemaSchema)
+const Book = mongoose.model("book", bookSchema);
 
-module.exports = book;
+module.exports = Book;

@@ -70,9 +70,11 @@ app.get('/auth/sign-out', authCtrl.signout);
 
 // Applications
 app.get('/users/:userId/books', booksCtrl.index);
+app.post("/books", isSignedIn, upload.single("image"), booksCtrl.createBook);
 app.get('/users/:userId/books/new', booksCtrl.new);
 app.post('/users/:userId/books', booksCtrl.create);
 app.get('/users/:userId/books/:bookId', booksCtrl.show);
+app.put("/books/:Id", isSignedIn, upload.single("image"), booksCtrl.editBook)
 app.delete('/users/:userId/books/:bookId', booksCtrl.delete);
 app.get('/users/:userId/books/:bookId/edit', booksCtrl.edit);
 app.put('/users/:userId/books/:bookId', booksCtrl.update);

@@ -3,6 +3,28 @@ const express = require('express');
 
 const User = require('../models/user.js');
 
+
+const uploadImage = (fileBuffer) => {
+    return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+            {
+                resource_type: 'image'
+            },
+            (error, result) => {
+                if (error) {
+                    reject(error)
+                } else {
+                    resolve(result)
+                }
+            }
+        )
+
+        uploadStream.end(fileBuffer)
+    })
+}
+
+
+
 const newBook = async(req, res) => {
     try {
         res.render('books/new.ejs');
@@ -88,14 +110,20 @@ const update = async(req, res) => {
 };
 
 
-const index = async(req, res) => {
+const index = async (req, res) => {
     try {
         const user = await User.findById(req.params.userId);
-        res.render('books/index.ejs', { books: user.books });
+
+        res.render('books/index.ejs', {
+            user: user,
+            books: user.books || []
+        });
+
     } catch (err) {
-        res.redirect('/')
+        console.log(err);
+        res.redirect('/');
     }
-}
+};
 
 module.exports = {
     new: newBook,
