@@ -13,19 +13,22 @@
     <%- include('../partials/_navbar.ejs') %>
         <h1>Add a New Books</h1>
 
-        <form action="/users/<%=user._id%>/Books" method="POST">
+        <form action="/books" method="POST" enctype="multipart/form-data">
 
            
 
             <label for="name">Book Name:</label>
             <input type="text" name="name" id="name" />
 
-             <label for="wraiterName">Book Writer:</label>
-            <input type="text" name="wraiterName" id="wraiterName" />
+            <label for="price">Price:</label>
+            <input type="number" name="price" id="price">
 
-            <label for="img">Book Img:</label>
-         <!--<input type="image" name="img" id="img" />-->
-                <input type="text" name="image" accept="image/*" required />
+             <label for="writer">Book Writer:</label>
+            <input type="text" name="writer" id="writer" />
+
+            <label for="image">Image:</label>
+          
+            <input type="file" name="image" accept="image/jpeg,image/png,image/webp">
 
             
             <button type="submit">Add the Book</button>

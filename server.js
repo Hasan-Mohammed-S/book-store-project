@@ -12,6 +12,8 @@ const methodOverride = require('method-override');
 const morgan = require('morgan');
 const isSignedIn = require('./middleware/is-signed-in.js');
 const passUserToView = require('./middleware/pass-user-to-view.js');
+const upload = require("./config/multer");
+
 
 const authCtrl = require('./controllers/authCtrl');
 const booksCtrl = require('./controllers/booksCtrl.js');
@@ -70,11 +72,11 @@ app.get('/auth/sign-out', authCtrl.signout);
 
 // Applications
 app.get('/users/:userId/books', booksCtrl.index);
-app.post("/books", isSignedIn, upload.single("image"), booksCtrl.createBook);
+app.post("/books", isSignedIn, upload.single("image"), booksCtrl.create);
 app.get('/users/:userId/books/new', booksCtrl.new);
 app.post('/users/:userId/books', booksCtrl.create);
 app.get('/users/:userId/books/:bookId', booksCtrl.show);
-app.put("/books/:Id", isSignedIn, upload.single("image"), booksCtrl.editBook)
+// app.put("/books/:Id", isSignedIn, upload.single("image"), booksCtrl.editBook)
 app.delete('/users/:userId/books/:bookId', booksCtrl.delete);
 app.get('/users/:userId/books/:bookId/edit', booksCtrl.edit);
 app.put('/users/:userId/books/:bookId', booksCtrl.update);

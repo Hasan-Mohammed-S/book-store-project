@@ -2,7 +2,7 @@
 const express = require('express');
 
 const User = require('../models/user.js');
-
+const Book = require('../models/book.js')
 
 const uploadImage = (fileBuffer) => {
     return new Promise((resolve, reject) => {
@@ -38,7 +38,7 @@ const newBook = async(req, res) => {
 const show = async(req, res) => {
     try {
         const user = await User.findById(req.params.userId);
-        const book = user.books.id(req.params.bookId);
+        const book = user.books.findById(req.params.bookId);
              const img=user.books.img(req.params.bookImg)
         res.render('books/show.ejs', { book });
     } catch (err) {
@@ -52,9 +52,25 @@ const show = async(req, res) => {
 const create = async(req, res) => {
     try {
         const user = await User.findById(req.params.userId);
-        console.log(user)
-        user.books.push(req.body);
-        await user.save();
+
+        const uploadedImage = await uploadImage(req.file.buffer);
+
+    const bookData = {
+        name: req.body.name,
+        price: req.body.price,
+        writer: req.body.writer,
+        description: req.body.description,
+        image: {
+            url: uploadedImage.secure_url,
+            publicId: uploadedImage.public_id
+        }
+    }
+
+    if (req.body.image) {
+        bookData.image = req.body.image;
+    }
+        await Book.create(bookData)
+
 
         res.redirect(`/users/${req.params.userId}/books`);
     } catch (err) {
@@ -82,7 +98,7 @@ const deleteBook = async(req, res) => {
 const edit = async(req, res) => {
     try {
         const user = await User.findById(req.params.userId);
-        const book = user.books.id(req.params.bookId);
+        const book = user.books.findById(req.params.bookId);
 
         res.render('books/edit.ejs', { book });
     } catch (err) {
@@ -96,7 +112,7 @@ const edit = async(req, res) => {
 const update = async(req, res) => {
     try {
         const user = await User.findById(req.params.userId);
-        const book = user.books.id(req.params.bookId);
+        const book = user.books.findById(req.params.bookId);
 
         book.set(req.body);
 
