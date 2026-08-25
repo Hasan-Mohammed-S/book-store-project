@@ -19,7 +19,7 @@ const upload = require("./config/multer");
 const authCtrl = require('./controllers/authCtrl');
 const booksCtrl = require('./controllers/booksCtrl');
 const usersCtrl = require('./controllers/usersCtrl');
-const isSignedIn = require('./middleware/is-signed-in');
+//const isSignedIn = require('./middleware/is-signed-in');
 
 const port = process.env.PORT ? process.env.PORT : '3003';
 
