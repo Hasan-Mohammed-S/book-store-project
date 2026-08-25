@@ -1,8 +1,9 @@
 require('dotenv').config();
-require('./config/databse');
+require('./config/database');
 
+
+const path = require('path');
 const express = require('express');
-
 const app = express();
 
 // Middleware
@@ -16,14 +17,14 @@ const upload = require("./config/multer");
 
 
 const authCtrl = require('./controllers/authCtrl');
-const booksCtrl = require('./controllers/booksCtrl.js');
-const usersCtrl = require('./controllers/usersCtrl.js')
-
+const booksCtrl = require('./controllers/booksCtrl');
+const usersCtrl = require('./controllers/usersCtrl');
+const isSignedIn = require('./middleware/is-signed-in');
 
 const port = process.env.PORT ? process.env.PORT : '3003';
 
 
-const path = require('path');
+
 
 
 
