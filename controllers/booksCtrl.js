@@ -1,5 +1,6 @@
 const User = require('../models/user.js');
 const Book = require('../models/book.js');
+const Writer = require('../models/writer');
 const cloudinary = require('../config/cloudinary.js');
 
 const uploadImage = (fileBuffer) => {
@@ -23,14 +24,17 @@ const uploadImage = (fileBuffer) => {
 };
 
 const newBook = async (req, res) => {
-    try {
-        res.render('books/new.ejs');
-    } catch (err) {
-        console.log(err);
-        res.redirect('/');
-    }
+  try {
+    const writers = await Writer.find({});
+    res.render('books/new.ejs', { 
+      title: 'Add New Book', 
+      writers: writers 
+    });
+  } catch (err) {
+    console.error(err);
+    res.redirect('/books');
+  }
 };
-
 const index = async (req, res) => {
     try {
         const user = await User.findById(req.params.userId).populate('books');
@@ -77,42 +81,27 @@ const show = async (req, res) => {
         res.redirect('/');
     }
 };
-
 const create = async (req, res) => {
-    try {
-        const user = await User.findById(req.params.userId);
+  try {
+    const bookData = {
+      title: req.body.title,
+      description: req.body.description,
+      writer: req.body.writer,
+      image: req.file ? req.file.path : 'https://placeholder.com'
+    };
 
-        if (!user) {
-            return res.status(404).send('User not found');
-        }
+    const newBook = await Book.create(bookData);
 
-        if (!req.file) {
-            return res.status(400).send('Book image is required');
-        }
+    await Writer.findByIdAndUpdate(req.body.writer, {
+      $push: { books: newBook._id }
+    });
 
-        const uploadedImage = await uploadImage(req.file.buffer);
-
-        const book = await Book.create({
-            name: req.body.name,
-            price: req.body.price,
-            writer: req.body.writer,
-            description: req.body.description,
-            image: {
-                url: uploadedImage.secure_url,
-                publicId: uploadedImage.public_id,
-            },
-        });
-
-        user.books.push(book._id);
-        await user.save();
-
-        res.redirect(`/users/${user._id}/books`);
-    } catch (err) {
-        console.log(err);
-        res.redirect(`/users/${req.params.userId}/books/new`);
-    }
+    res.redirect('/books');
+  } catch (err) {
+    console.error(err);
+    res.redirect('/books/new');
+  }
 };
-
 const edit = async (req, res) => {
     try {
         const user = await User.findById(req.params.userId);

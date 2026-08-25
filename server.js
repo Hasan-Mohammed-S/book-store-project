@@ -1,6 +1,9 @@
 require('dotenv').config();
 require('./config/database');
 
+const Writer = require('./models/writer');
+const writersCtrl = require('./controllers/writersCtrl');
+
 const path = require('path');
 const express = require('express');
 const app = express();
@@ -51,6 +54,9 @@ app.post('/auth/sign-in', authCtrl.login);
 app.use(isSignedIn);
 
 // PRIVATE ROUTES
+
+
+
 app.get('/auth/sign-out', authCtrl.signout);
 
 app.get('/users/:userId/books', booksCtrl.index);
@@ -61,9 +67,19 @@ app.get('/users/:userId/books/:bookId/edit', booksCtrl.edit);
 app.put('/users/:userId/books/:bookId', upload.single('image'), booksCtrl.update);
 app.delete('/users/:userId/books/:bookId', booksCtrl.delete);
 
+
+app.get('/writers/new', isSignedIn, writersCtrl.newWriter);
+app.post('/writers', isSignedIn, upload.single('image'), writersCtrl.createWriter);
+app.get('/writers/:id', writersCtrl.showWriter);
+
+
+
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
+
+
 
 // Users
 /*app.get('/users', usersCtrl.index);
