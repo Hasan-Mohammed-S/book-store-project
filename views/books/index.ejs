@@ -1,25 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My books</title>
+    <title>My Books</title>
 </head>
-
 <body>
     <%- include('../partials/_navbar.ejs') %>
-        <h1>Welcome to my books</h1>
-        <a href="/users/<%= user._id %>/books/new">Add a new book</a>
-        <ul>
-            <% books.forEach((book)=>{ %>
+
+    <h1>Welcome to my books</h1>
+    <a href="/users/<%= user._id %>/books/new">Add a new book</a>
+
+    <ul>
+        <% books.forEach((book) => { %>
+            <li>
                 <a href="/users/<%= user._id %>/books/<%= book._id %>">
-                    <li>
-                        <%=book.img%>
-                        <%= book.name %>
-                    </li>
-                    
+                    <img
+                        src="<%= book.image.url %>"
+                        alt="<%= book.name %>"
+                        width="120"
+                    />
+                    <span><%= book.name %></span>
                 </a>
-                <% }) %>
-        </ul>
+            </li>
+        <% }) %>
+    </ul>
 </body>
+</html>
