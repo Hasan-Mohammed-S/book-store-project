@@ -76,8 +76,10 @@ app.delete('/users/:userId/books/:bookId', booksCtrl.delete);
 
 app.get('/community',booksCtrl.communityIndex);
 
+//href="/community/<%= book._id %>"
 
-
+app.get('/community/:bookId', booksCtrl.communityShow)
+//Cannot GET /community/6a8e98579ea7ecbde21bf2f3
 
 app.listen(port,   () => {
     console.log(`Server is running on http://localhost:${port}`);

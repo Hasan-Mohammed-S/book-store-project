@@ -1,17 +1,51 @@
 <%- include('../partials/_navbar') %>
 
-<div class="container mt-5">
-    <!-- Page Header -->
-    <div class="row mb-5 text-center">
-        <div class="col-md-8 mx-auto">
-            <h1 class="display-4 fw-bold text-primary">Readers Community</h1>
-            <p class="lead text-muted">Explore the latest thoughts, reviews, and insights shared by our fellow readers.</p>
-            <hr class="w-25 mx-auto text-primary border-2">
-        </div>
-    </div>
-    
- 
-    </div>
-</div>
+<main class="browse-container">
+  <div class="browse-header">
+    <h1>Community Recommendations</h1>
+    <% if (user) { %>
+      <a href="/books/new" class="btn primary-btn">Share a Book</a>
+    <% } %>
+  </div>
 
+  <% if (books.length === 0) { %>
+    <div class="empty-state-container">
+      <div class="empty-state-icon">💬</div>
+      <p class="empty-state-text">Looks empty... why don't you be the first to share your favorite book?</p>
+    </div>
+  <% } else { %>
+    <div class="browse-grid">
+      <% books.forEach((book) => { %>
+        <article class="book-card">
+          
+          <!-- Poster Information -->
+          <div class="poster-details">
+            <% const poster = users.find(u => u.books.some(bId => bId.toString() === book._id.toString())) %>
+            <span class="poster-username">Posted by: <%= poster ? poster.username : 'Community Member' %></span>
+          </div>
+
+          <!-- Book Card Link -->
+          <a href="/community/<%= book._id %>" class="book-card-link">
+            <% if (book.image && book.image.url) { %>
+              <div class="book-cover-wrapper">
+                <img class="book-cover" src="<%= book.image.url %>" alt="<%= book.name %> cover">
+              </div>
+            <% } %>
+            
+            <div class="book-info">
+              <h2 class="book-title"><%= book.name %></h2>
+              <h3 class="book-author">by <%= book.writer %></h3>
+              <p class="book-price">$<%= book.price %></p>
+              
+              <% if (book.description) { %>
+                <p class="book-summary"><%= book.description %></p>
+              <% } %>
+            </div>
+          </a>
+
+        </article>
+      <% }) %>
+    </div>
+  <% } %>
+</main>
 

@@ -246,6 +246,37 @@ const communityIndex = async (req, res) => {
 
 }
 
+
+
+const communityShow = async (req, res) => {
+    try {
+        // const user = await User.findById(req.params.userId);
+
+        // if (!user) {
+        //     return res.status(404).send('User not found');
+        // }
+
+        // const ownsBook = user.books.some(
+        //     (bookId) => bookId.toString() === req.params.bookId
+        // );
+
+        // if (!ownsBook) {
+        //     return res.status(404).send('Book not found');
+        // }
+console.log('dgdfhgfh')
+        const book = await Book.findById(req.params.bookId);
+
+        if (!book) {
+            return res.status(404).send('Book not found');
+        }
+
+        res.render('books/show.ejs', { book });
+    } catch (err) {
+        console.log(err);
+        res.redirect('/');
+    }
+};
+
 module.exports = {
     new: newBook,
     index,
@@ -255,4 +286,5 @@ module.exports = {
     show,
     update,
     communityIndex,
+    communityShow,
 };
