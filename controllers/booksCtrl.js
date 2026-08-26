@@ -2,6 +2,8 @@ const User = require('../models/user.js');
 const Book = require('../models/book.js');
 const cloudinary = require('../config/cloudinary.js');
 
+
+
 const uploadImage = (fileBuffer) => {
     return new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
@@ -228,6 +230,22 @@ const deleteBook = async (req, res) => {
     }
 };
 
+//comminty controllers
+
+
+const communityIndex = async (req, res) => {
+
+  const books = await Book.find();
+  const users = await User.find();
+
+  res.render("community/index.ejs", {
+    books: books,
+    users
+
+  });
+
+}
+
 module.exports = {
     new: newBook,
     index,
@@ -236,4 +254,5 @@ module.exports = {
     edit,
     show,
     update,
+    communityIndex,
 };

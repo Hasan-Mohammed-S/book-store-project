@@ -10,53 +10,7 @@
         </div>
     </div>
     
-    <!-- Comments Stream -->
-    <div class="row">
-        <% if (comments.length === 0) { %>
-            <!-- Empty State -->
-            <div class="col-md-6 mx-auto text-center py-5">
-                <div class="alert alert-info shadow-sm p-4 rounded-3" role="alert">
-                    <h4 class="alert-heading fw-bold mb-2">No Thoughts Shared Yet!</h4>
-                    <p class="mb-0">Be the first to share your thoughts by leaving a comment on your favorite books.</p>
-                </div>
-            </div>
-        <% } else { %>
-            <!-- Loop Through All Comments -->
-            <% comments.forEach(comment => { %>
-                <div class="col-md-8 mx-auto mb-4">
-                    <div class="card h-100 border-0 shadow-sm rounded-3">
-                        <div class="card-body p-4">
-                            <!-- Card Header Details -->
-                            <div class="d-flex align-items-center justify-content-between border-bottom pb-3 mb-3">
-                                <div>
-                                    <h5 class="card-title mb-1 fw-bold text-dark">
-                                        <a href="/users/<%= comment.user._id %>" class="text-primary text-decoration-none hover-dark">
-                                            @<%= comment.user.username %>
-                                        </a>
-                                    </h5>
-                                    <span class="text-muted small">
-                                        commented on 
-                                        <a href="/books/<%= comment.book._id %>" class="text-secondary fw-semibold text-decoration-none">
-                                            <%= comment.book.title %>
-                                        </a>
-                                    </span>
-                                </div>
-                                <!-- Timestamp -->
-                                <span class="badge bg-light text-secondary rounded-pill border py-2 px-3 small">
-                                    <%= new Date(comment.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
-                                </span>
-                            </div>
-                            
-                            <!-- Comment Content -->
-                            <div class="card-text text-secondary lh-lg fs-5 px-2 py-1 bg-light rounded-3 italic-text">
-                                <i class="bi bi-quote text-primary opacity-50 fs-2 d-block mb-1"></i>
-                                "<%= comment.content %>"
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            <% }) %>
-        <% } %>
+ 
     </div>
 </div>
 

@@ -4,26 +4,26 @@ const Book = require('../models/book');
 // @desc    Get community page displaying all users' comments
 // @route   GET /community
 // @access  Public
-const getCommunityPage = async (req, res) => {
-    try {
-        // Fetch all comments, populate user and book details, and sort by newest first
-        const comments = await Comment.find()
-            .populate('user', 'username') // populates only the username from User model
-            .populate('book', 'title')    // populates only the title from Book model
-            .sort({ createdAt: -1 });
+// const getCommunityPage = async (req, res) => {
+//     try {
+//         // Fetch all comments, populate user and book details, and sort by newest first
+//         const comments = await Comment.find()
+//             .populate('user', 'username') // populates only the username from User model
+//             .populate('book', 'title')    // populates only the title from Book model
+//             .sort({ createdAt: -1 });
 
-        res.render('community/index', {
-            title: 'Community - Readers Circle',
-            comments: comments,
-            user: req.user || null
-        });
-    } catch (error) {
-        console.error('Error loading community page:', error);
-        res.status(500).render('error', { 
-            message: 'Something went wrong while loading the community page.' 
-        });
-    }
-};
+//         res.render('community/index', {
+//             title: 'Community - Readers Circle',
+//             comments: comments,
+//             user: req.user || null
+//         });
+//     } catch (error) {
+//         console.error('Error loading community page:', error);
+//         res.status(500).render('error', { 
+//             message: 'Something went wrong while loading the community page.' 
+//         });
+//     }
+// };
 
 // @desc    Create a new comment on a specific book
 // @route   POST /books/:bookId/comments
@@ -59,9 +59,7 @@ const createComment = async (req, res) => {
     }
 };
 
-// @desc    Delete a comment
-// @route   DELETE /books/:bookId/comments/:commentId
-// @access  Private (Comment owner only)
+
 const deleteComment = async (req, res) => {
     try {
         const { bookId, commentId } = req.params;
@@ -71,7 +69,6 @@ const deleteComment = async (req, res) => {
             return res.status(404).render('error', { message: 'Comment not found' });
         }
 
-        // Authorization check: Only the user who wrote the comment can delete it
         if (comment.user.toString() !== req.user._id.toString()) {
             return res.status(403).render('error', { 
                 message: 'Unauthorized action. You can only delete your own comments.' 

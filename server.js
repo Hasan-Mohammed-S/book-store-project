@@ -72,6 +72,15 @@ app.get('/users/:userId/books/:bookId/edit', booksCtrl.edit);
 app.put('/users/:userId/books/:bookId', upload.single('image'), booksCtrl.update);
 app.delete('/users/:userId/books/:bookId', booksCtrl.delete);
 
+
+
+app.get('/community',booksCtrl.communityIndex);
+
+
+
+
 app.listen(port,   () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
+
+
