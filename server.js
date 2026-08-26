@@ -5,6 +5,12 @@ const path = require('path');
 const express = require('express');
 const app = express();
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (isProduction) {
+  app.set('trust proxy', 1);
+}
+
 const session = require('express-session');
 const MongoStore = require('connect-mongo').MongoStore;
 const methodOverride = require('method-override');
@@ -24,12 +30,17 @@ app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(
-    session({
-        secret: process.env.SESSION_SECRET,
-        resave: false,
-        saveUninitialized: true,
-        store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
-    })
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
+    cookie: {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: isProduction,
+    },
+  })
 );
 
 app.use(passUserToView);
@@ -61,6 +72,6 @@ app.get('/users/:userId/books/:bookId/edit', booksCtrl.edit);
 app.put('/users/:userId/books/:bookId', upload.single('image'), booksCtrl.update);
 app.delete('/users/:userId/books/:bookId', booksCtrl.delete);
 
-app.listen(port, () => {
+app.listen(port,   '0.0.0.0',  () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
