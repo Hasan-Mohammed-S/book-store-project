@@ -1,81 +1,100 @@
-const User = require("../models/user");
-const Book = require("../models/book");
-const Comment = require("../models/comment");
+const Comment = require('../models/comment');
+const Book = require('../models/book');
 
-const newComment = async (req, res) => {
-  try {
-    let toUpload = {};
+// @desc    Get community page displaying all users' comments
+// @route   GET /community
+// @access  Public
+const getCommunityPage = async (req, res) => {
+    try {
+        // Fetch all comments, populate user and book details, and sort by newest first
+        const comments = await Comment.find()
+            .populate('user', 'username') // populates only the username from User model
+            .populate('book', 'title')    // populates only the title from Book model
+            .sort({ createdAt: -1 });
 
-    if (req.body.commentContent) {
-      toUpload.comment = req.body.commentContent;
-    } else {
-      return res.render("error.ejs", {
-        msg: "Comment cannot be empty",
-        pageTitle: "Error",
-      });
+        res.render('community/index', {
+            title: 'Community - Readers Circle',
+            comments: comments,
+            user: req.user || null
+        });
+    } catch (error) {
+        console.error('Error loading community page:', error);
+        res.status(500).render('error', { 
+            message: 'Something went wrong while loading the community page.' 
+        });
     }
-
-    if (req.session) {
-      toUpload.userId = req.session.user.id;
-    } else {
-      return res.render("error.ejs", {
-        msg: "Please log in to comment",
-        pageTitle: "Error",
-      });
-    }
-
-    if (req.params.bookId) {
-      toUpload.bookId = req.params.bookId;
-    } else {
-      return res.render("error.ejs", {
-        msg: "An error happened, please refresh the page!",
-        pageTitle: "Error",
-      });
-    }
-
-    await Comment.create(toUpload);
-    res.redirect(`/books/${req.params.bookId}`);
-  } catch (error) {
-    console.log(error);
-  }
 };
 
-const editComment = async (req, res) => {
-  try {
-    const commentToEdit = await Comment.findById(req.params.commentId);
+// @desc    Create a new comment on a specific book
+// @route   POST /books/:bookId/comments
+// @access  Private (Logged-in users only)
+const createComment = async (req, res) => {
+    try {
+        const bookId = req.params.bookId;
+        const book = await Book.findById(bookId);
 
-    if (req.body.commentContent) {
-      commentToEdit.comment = req.body.commentContent;
-    } else {
-      return res.render("error.ejs", {
-        msg: "Comment cannot be empty",
-        pageTitle: "Error",
-      });
+        if (!book) {
+            return res.status(404).render('error', { message: 'Book not found' });
+        }
+
+        // Create the comment object
+        const newComment = new Comment({
+            content: req.body.content,
+            user: req.user._id, // the logged-in user
+            book: bookId
+        });
+
+        // Save comment to database
+        await newComment.save();
+
+        // Push the comment ID into the book's comments array and save the book
+        book.comments.push(newComment._id);
+        await book.save();
+
+        // Redirect back to the book detail page
+        res.redirect(`/books/${bookId}`);
+    } catch (error) {
+        console.error('Error creating comment:', error);
+        res.status(500).render('error', { message: 'Failed to submit your comment.' });
     }
-
-    commentToEdit.save();
-
-    res.redirect(`/books/${req.params.bookId}`);
-  } catch (error) {
-    console.log(error);
-  }
 };
 
+// @desc    Delete a comment
+// @route   DELETE /books/:bookId/comments/:commentId
+// @access  Private (Comment owner only)
 const deleteComment = async (req, res) => {
-  try {
+    try {
+        const { bookId, commentId } = req.params;
+        const comment = await Comment.findById(commentId);
 
-    const commentToDelete = await Comment.findByIdAndDelete(
-      req.params.commentId,
-    );
-    if (!commentToDelete) {
-      return res.render("error.ejs", {
-        msg: "Id not found",
-        pageTitle: "Error",
-      });
+        if (!comment) {
+            return res.status(404).render('error', { message: 'Comment not found' });
+        }
+
+        // Authorization check: Only the user who wrote the comment can delete it
+        if (comment.user.toString() !== req.user._id.toString()) {
+            return res.status(403).render('error', { 
+                message: 'Unauthorized action. You can only delete your own comments.' 
+            });
+        }
+
+        // Delete comment from Comments collection
+        await Comment.findByIdAndDelete(commentId);
+
+        // Remove the comment reference from the book's array
+        await Book.findByIdAndUpdate(bookId, {
+            $pull: { comments: commentId }
+        });
+
+        res.redirect(`/books/${bookId}`);
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        res.status(500).render('error', { message: 'Failed to delete the comment.' });
     }
-    res.redirect(`/books/${req.params.bookId}`);
-  } catch (error) {
-    console.log(error);
-  }
 };
-module.exports = { newComment, editComment, deleteComment };
+
+module.exports = {
+    getCommunityPage,
+    createComment,
+    deleteComment
+};
