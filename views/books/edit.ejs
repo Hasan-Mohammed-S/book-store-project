@@ -1,56 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/stylesheets/style.css" />
-    <title>Edit <%= book.name %></title>
+
+    <title>Editing book </title>
 </head>
+
 <body>
     <%- include('../partials/_navbar.ejs') %>
+        <h1>Editing
+            <%= book.name%>
+        </h1>
 
-    <h1>Editing <%= book.name %></h1>
+        <form action="/users/<%=user._id%>/books/<%=book._id%>?_method=PUT" method="POST">
 
-    <img
-        src="<%= book.image.url %>"
-        alt="<%= book.name %>"
-        width="180"
-    />
+            <input type="image" name="bookImg" id="bookImg" value="<%=book.img%>"/>
+            <label for="name">Book Name:</label>
+            <input type="text" name="name" id="name" value="<%=book.name%>" />
 
-    <form
-        action="/users/<%= user._id %>/books/<%= book._id %>?_method=PUT"
-        method="POST"
-        enctype="multipart/form-data"
-    >
-        <label for="name">Book Name:</label>
-        <input type="text" name="name" id="name" value="<%= book.name %>" required />
+            </textarea>
 
-        <label for="price">Price:</label>
-        <input
-            type="number"
-            name="price"
-            id="price"
-            min="0"
-            step="0.01"
-            value="<%= book.price %>"
-            required
-        />
-
-        <label for="writer">Book Writer:</label>
-        <input type="text" name="writer" id="writer" value="<%= book.writer %>" required />
-
-        <label for="description">Description:</label>
-        <textarea name="description" id="description"><%= book.description || '' %></textarea>
-
-        <label for="image">Replace Image:</label>
-        <input
-            type="file"
-            name="image"
-            id="image"
-            accept="image/jpeg,image/png,image/webp"
-        />
-
-        <button type="submit">Update Book</button>
-    </form>
+            <button type="submit">Add App</button>
+        </form>
 </body>
-</html>
+</htmlt>

@@ -1,41 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/stylesheets/style.css" />
     <link rel="stylesheet" href="/stylesheets/show.css" />
-    <title><%= book.name %></title>
+
+    <title>
+        Your books
+    </title>
 </head>
+
 <body>
     <%- include('../partials/_navbar.ejs') %>
+        <div class="show-body">
+            <div class="show-header">
+                <h1>
+                    <%= book.name %>
+                </h1>
+ 
+                <a><%= book.img %></a>
+                                    
+                <div class="show-sidebar">
+                   
+                    <div class="show-actions">
+                        <a href="/users/<%= user._id %>/books/<%= book._id %>/edit">
+            Edit App
+          </a>
+                        <form action="/users/<%= user._id %>/books/<%= book._id %>?_method=DELETE" method="POST">
+                            <button type="submit">Delete the Book</button>
+                        </form>
+                    </div>
 
-    <div class="show-body">
-        <div class="show-header">
-            <h1><%= book.name %></h1>
-
-            <img
-                src="<%= book.image.url %>"
-                alt="<%= book.name %>"
-                width="250"
-            />
-
-            <p><strong>Writer:</strong> <%= book.writer %></p>
-            <p><strong>Price:</strong> <%= book.price %></p>
-            <% if (book.description) { %>
-                <p><strong>Description:</strong> <%= book.description %></p>
-            <% } %>
-
-            <div class="show-actions">
-                <a href="/users/<%= user._id %>/books/<%= book._id %>/edit">
-                    Edit Book
-                </a>
-
-                <form action="/users/<%= user._id %>/books/<%= book._id %>?_method=DELETE" method="POST">
-                    <button type="submit">Delete the Book</button>
-                </form>
+                </div>
             </div>
+
+
         </div>
-    </div>
+        </div>
 </body>
+
 </html>

@@ -30,21 +30,6 @@
           
             <input type="file" name="image" accept="image/jpeg,image/png,image/webp">
 
-
-            <div class="mb-3 text-right" style="direction: rtl;">
-           <label for="writer" class="form-label font-weight-bold">Select the book's author:</label>  <select class="form-select form-control" id="writer" name="writer" required>
-           <option value="" disabled selected>-- Select from the library's list of authors --</option>    
-           <% if (writers && writers.length > 0) { %>
-          <% writers.forEach(writer => { %>
-        <option value="<%= writer._id %>"><%= writer.name %></option>
-       <% }) %>
-    <% } %>
-    
-  </select>
-<div class="form-text text-muted small mt-1">If the author does not exist, please add them first via the "Add New Author" page.</div></div>
-
-
-
             
             <button type="submit">Add the Book</button>
         </form>
