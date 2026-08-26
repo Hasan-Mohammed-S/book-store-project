@@ -1,183 +1,239 @@
-const Book = require('../models/book');
+const User = require('../models/user.js');
+const Book = require('../models/book.js');
+const cloudinary = require('../config/cloudinary.js');
 
-// @desc    Get all books
-// @route   GET /books
-// @access  Public
-const getAllBooks = async (req, res) => {
+const uploadImage = (fileBuffer) => {
+    return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+            {
+                resource_type: 'image',
+                folder: 'book-store',
+            },
+            (error, result) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(result);
+                }
+            }
+        );
+
+        uploadStream.end(fileBuffer);
+    });
+};
+
+const newBook = async (req, res) => {
     try {
-        const books = await Book.find().populate('user', 'username');
-        res.render('books/index', { title: 'All Books', books });
-    } catch (error) {
-        console.error('Error fetching books:', error);
-        res.status(500).render('error', { message: 'Failed to retrieve books.' });
+        res.render('books/new.ejs');
+    } catch (err) {
+        console.log(err);
+        res.redirect('/');
     }
 };
 
-// @desc    Show create book page
-// @route   GET /books/new
-// @access  Private
-const newBookPage = (req, res) => {
-    res.render('books/new', { title: 'Add a New Book' });
-};
-
-// @desc    Create a new book
-// @route   POST /books
-// @access  Private
-const createBook = async (req, res) => {
+const index = async (req, res) => {
     try {
-        const { title, description } = req.body;
-        const newBook = new Book({
-            title,
-            description,
-            user: req.user._id // Assign logged-in user as the book owner
+        const user = await User.findById(req.params.userId).populate('books');
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        res.render('books/index.ejs', {
+            user,
+            books: user.books,
         });
-        await newBook.save();
-        res.redirect('/books');
-    } catch (error) {
-        console.error('Error creating book:', error);
-        res.status(500).render('error', { message: 'Failed to create the book.' });
+    } catch (err) {
+        console.log(err);
+        res.redirect('/');
     }
 };
 
-// @desc    Get a single book details by ID
-// @route   GET /books/:id
-// @access  Public
-const getBookById = async (req, res) => {
+const show = async (req, res) => {
     try {
-        const book = await Book.findById(req.params.id)
-            .populate('user', 'username')
-            .populate({
-                path: 'comments',
-                populate: { path: 'user', select: 'username' } // Deep populate comment owners
-            });
+        const user = await User.findById(req.params.userId);
 
-        if (!book) {
-            return res.status(404).render('error', { message: 'Book not found.' });
+        if (!user) {
+            return res.status(404).send('User not found');
         }
 
-        res.render('books/show', { title: book.title, book });
-    } catch (error) {
-        console.error('Error fetching book details:', error);
-        res.status(500).render('error', { message: 'Error loading book details.' });
-    }
-};
+        const ownsBook = user.books.some(
+            (bookId) => bookId.toString() === req.params.bookId
+        );
 
-// @desc    Show edit book page
-// @route   GET /books/:id/edit
-// @access  Private (Owner only)
-const editBookPage = async (req, res) => {
-    try {
-        const book = await Book.findById(req.params.id);
-
-        if (!book) {
-            return res.status(404).render('error', { message: 'Book not found.' });
+        if (!ownsBook) {
+            return res.status(404).send('Book not found');
         }
 
-        // SECURITY CHECK: Only allow the owner to access the edit page
-        if (book.user.toString() !== req.user._id.toString()) {
-            return res.status(403).render('error', { message: 'Unauthorized. Only the owner can edit this book.' });
-        }
-
-        res.render('books/edit', { title: `Edit ${book.title}`, book });
-    } catch (error) {
-        console.error('Error loading edit page:', error);
-        res.status(500).render('error', { message: 'Error loading edit page.' });
-    }
-};
-
-// @desc    Update a book
-// @route   PUT /books/:id
-// @access  Private (Owner only)
-const updateBook = async (req, res) => {
-    try {
-        const book = await Book.findById(req.params.id);
-
-        if (!book) {
-            return res.status(404).render('error', { message: 'Book not found.' });
-        }
-
-        // BACKEND PROTECTION: Prevent unauthorized update requests
-        if (book.user.toString() !== req.user._id.toString()) {
-            return res.status(403).render('error', { message: 'Unauthorized action. Modification denied.' });
-        }
-
-        book.title = req.body.title;
-        book.description = req.body.description;
-        await book.save();
-
-        res.redirect(`/books/${book._id}`);
-    } catch (error) {
-        console.error('Error updating book:', error);
-        res.status(500).render('error', { message: 'Failed to update book details.' });
-    }
-};
-
-// @desc    Delete a book
-// @route   DELETE /books/:id
-// @access  Private (Owner only)
-const deleteBook = async (req, res) => {
-    try {
-        const book = await Book.findById(req.params.id);
-
-        if (!book) {
-            return res.status(404).render('error', { message: 'Book not found.' });
-        }
-
-        // BACKEND PROTECTION: Prevent unauthorized delete requests
-        if (book.user.toString() !== req.user._id.toString()) {
-            return res.status(403).render('error', { message: 'Unauthorized action. Deletion denied.' });
-        }
-
-        await Book.findByIdAndDelete(req.params.id);
-        res.redirect('/books');
-    } catch (error) {
-        console.error('Error deleting book:', error);
-        res.status(500).render('error', { message: 'Failed to delete the book.' });
-    }
-};
-
-// @desc    Like or Unlike a book
-// @route   POST /books/:bookId/like
-// @access  Private (Logged-in users)
-const likeBook = async (req, res) => {
-    try {
         const book = await Book.findById(req.params.bookId);
 
         if (!book) {
-            return res.status(404).render('error', { message: 'Book not found.' });
+            return res.status(404).send('Book not found');
         }
 
-        // Initialize likes array if it doesn't exist in the model
-        if (!book.likes) {
-            book.likes = [];
+        res.render('books/show.ejs', { user, book });
+    } catch (err) {
+        console.log(err);
+        res.redirect('/');
+    }
+};
+
+const create = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+
+        if (!user) {
+            return res.status(404).send('User not found');
         }
 
-        // Check if the user has already liked this book
-        const alreadyLiked = book.likes.includes(req.user._id);
+        if (!req.file) {
+            return res.status(400).send('Book image is required');
+        }
 
-        if (alreadyLiked) {
-            // Unlike: remove user ID from likes array
-            book.likes.pull(req.user._id);
+        const uploadedImage = await uploadImage(req.file.buffer);
+
+        const book = await Book.create({
+            name: req.body.name,
+            price: req.body.price,
+            writer: req.body.writer,
+            description: req.body.description,
+            image: {
+                url: uploadedImage.secure_url,
+                publicId: uploadedImage.public_id,
+            },
+        });
+
+        user.books.push(book._id);
+        await user.save();
+
+        res.redirect(`/users/${user._id}/books`);
+    } catch (err) {
+        console.log(err);
+        res.redirect(`/users/${req.params.userId}/books/new`);
+    }
+};
+
+const edit = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        const ownsBook = user.books.some(
+            (bookId) => bookId.toString() === req.params.bookId
+        );
+
+        if (!ownsBook) {
+            return res.status(404).send('Book not found');
+        }
+
+        const book = await Book.findById(req.params.bookId);
+
+        if (!book) {
+            return res.status(404).send('Book not found');
+        }
+
+        res.render('books/edit.ejs', { user, book });
+    } catch (err) {
+        console.log(err);
+        res.redirect('/');
+    }
+};
+
+const update = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        const ownsBook = user.books.some(
+            (bookId) => bookId.toString() === req.params.bookId
+        );
+
+        if (!ownsBook) {
+            return res.status(404).send('Book not found');
+        }
+
+        const book = await Book.findById(req.params.bookId);
+
+        if (!book) {
+            return res.status(404).send('Book not found');
+        }
+
+        book.name = req.body.name;
+        book.price = req.body.price;
+        book.writer = req.body.writer;
+        book.description = req.body.description;
+
+        if (req.file) {
+            const oldPublicId = book.image.publicId;
+            const uploadedImage = await uploadImage(req.file.buffer);
+
+            book.image = {
+                url: uploadedImage.secure_url,
+                publicId: uploadedImage.public_id,
+            };
+
+            await book.save();
+
+            if (oldPublicId) {
+                await cloudinary.uploader.destroy(oldPublicId);
+            }
         } else {
-            // Like: push user ID into likes array
-            book.likes.push(req.user._id);
+            await book.save();
         }
 
-        await book.save();
-        res.redirect(`/books/${req.params.bookId}`);
-    } catch (error) {
-        console.error('Error processing like action:', error);
-        res.status(500).render('error', { message: 'Failed to complete the like operation.' });
+        res.redirect(`/users/${user._id}/books/${book._id}`);
+    } catch (err) {
+        console.log(err);
+        res.redirect(`/users/${req.params.userId}/books/${req.params.bookId}/edit`);
+    }
+};
+
+const deleteBook = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId);
+
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+
+        const ownsBook = user.books.some(
+            (bookId) => bookId.toString() === req.params.bookId
+        );
+
+        if (!ownsBook) {
+            return res.status(404).send('Book not found');
+        }
+
+        const book = await Book.findById(req.params.bookId);
+
+        if (book && book.image && book.image.publicId) {
+            await cloudinary.uploader.destroy(book.image.publicId);
+        }
+
+        await Book.findByIdAndDelete(req.params.bookId);
+
+        user.books.pull(req.params.bookId);
+        await user.save();
+
+        res.redirect(`/users/${user._id}/books`);
+    } catch (err) {
+        console.log(err);
+        res.redirect('/');
     }
 };
 
 module.exports = {
-    getAllBooks,
-    newBookPage,
-    createBook,
-    getBookById,
-    editBookPage,
-    updateBook,
-    deleteBook,
-    likeBook
+    new: newBook,
+    index,
+    create,
+    delete: deleteBook,
+    edit,
+    show,
+    update,
 };
