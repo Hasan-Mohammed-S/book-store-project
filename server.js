@@ -45,7 +45,7 @@ app.use(
 
 app.use(passUserToView);
 
-// PUBLIC ROUTES
+// ================= PUBLIC ROUTES =================
 app.get('/', (req, res) => {
     if (req.session.user) {
         res.redirect(`/users/${req.session.user._id}/books`);
@@ -54,16 +54,24 @@ app.get('/', (req, res) => {
     }
 });
 
+// Auth Routes
 app.get('/auth/sign-up', authCtrl.signup);
 app.post('/auth/sign-up', authCtrl.register);
 app.get('/auth/sign-in', authCtrl.signin);
 app.post('/auth/sign-in', authCtrl.login);
 
+// Community Read Routes (متاحة للجميع للمشاهدة)
+app.get('/community', booksCtrl.communityIndex);
+app.get('/community/:bookId', booksCtrl.communityShow);
+
+
+// ================= PRIVATE ROUTES =================
+// كل المسارات أدناه تتطلب تسجيل الدخول
 app.use(isSignedIn);
 
-// PRIVATE ROUTES
 app.get('/auth/sign-out', authCtrl.signout);
 
+// User Books Routes
 app.get('/users/:userId/books', booksCtrl.index);
 app.get('/users/:userId/books/new', booksCtrl.new);
 app.post('/users/:userId/books', upload.single('image'), booksCtrl.create);
@@ -72,17 +80,10 @@ app.get('/users/:userId/books/:bookId/edit', booksCtrl.edit);
 app.put('/users/:userId/books/:bookId', upload.single('image'), booksCtrl.update);
 app.delete('/users/:userId/books/:bookId', booksCtrl.delete);
 
+// Community Interaction Routes (تتطلب تسجيل دخول)
+app.post('/community/:bookId/comments', booksCtrl.addComment);
+app.post('/community/:bookId/like', booksCtrl.toggleLike);
 
-
-app.get('/community',booksCtrl.communityIndex);
-
-//href="/community/<%= book._id %>"
-
-app.get('/community/:bookId', booksCtrl.communityShow)
-//Cannot GET /community/6a8e98579ea7ecbde21bf2f3
-
-app.listen(port,   () => {
+app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
-
-

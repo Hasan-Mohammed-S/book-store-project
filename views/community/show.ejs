@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= book.name %></title>
+</head>
+<body>
+    <%- include('../partials/_navbar.ejs') %>
+
+    <div>
+        <!-- Publisher Information -->
+        <div>
+            <p>Posted by: <strong><%= book.user ? book.user.username : 'Unknown User' %></strong></p>
+        </div>
+
+        <!-- Book Details -->
+        <div>
+            <% if (book.image) { %>
+                <img src="<%= book.image %>" alt="<%= book.name %>">
+            <% } %>
+            
+            <div>
+                <h1><%= book.name %></h1>
+                <h3>Author: <%= book.author %></h3>
+                <p><%= book.description %></p>
+
+                <!-- Like Button (Heart) -->
+                <div>
+                    <% const hasLiked = user && book.likes && book.likes.includes(user._id); %>
+                    <form action="/community/<%= book._id %>/like" method="POST">
+                        <button type="submit">
+                            <%= hasLiked ? '❤️' : '🤍' %>
+                        </button>
+                    </form>
+                    <span><%= book.likes ? book.likes.length : 0 %> Likes</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div>
+            <h2>Comments</h2>
+
+            <!-- Add Comment Form -->
+            <% if (user) { %>
+                <form action="/community/<%= book._id %>/comments" method="POST">
+                    <textarea name="content" rows="3" placeholder="Write a comment..." required></textarea>
+                    <button type="submit">Add Comment</button>
+                </form>
+            <% } else { %>
+                <p><a href="/auth/sign-in">Sign in</a> to leave a comment.</p>
+            <% } %>
+
+            <!-- Comments List -->
+            <div>
+                <% if (book.comments && book.comments.length > 0) { %>
+                    <% book.comments.forEach(comment => { %>
+                        <div>
+                            <strong><%= comment.user ? comment.user.username : 'User' %></strong>
+                            <p><%= comment.content %></p>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p>No comments yet. Be the first to comment!</p>
+                <% } %>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
