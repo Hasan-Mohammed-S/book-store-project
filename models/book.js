@@ -10,11 +10,10 @@ const bookSchema = new mongoose.Schema({
         type: String,
     },
 
-   writer: {
-  type: mongoose.Schema.Types.ObjectId,
-  ref: 'Writer', 
-  required: true 
-},
+    writer: {
+        type: String,
+        required: true,
+    },
 
     price: {
         type: Number,
