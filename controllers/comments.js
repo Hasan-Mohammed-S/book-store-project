@@ -1,33 +1,6 @@
 const Comment = require('../models/comment');
 const Book = require('../models/book');
 
-// @desc    Get community page displaying all users' comments
-// @route   GET /community
-// @access  Public
-// const getCommunityPage = async (req, res) => {
-//     try {
-//         // Fetch all comments, populate user and book details, and sort by newest first
-//         const comments = await Comment.find()
-//             .populate('user', 'username') // populates only the username from User model
-//             .populate('book', 'title')    // populates only the title from Book model
-//             .sort({ createdAt: -1 });
-
-//         res.render('community/index', {
-//             title: 'Community - Readers Circle',
-//             comments: comments,
-//             user: req.user || null
-//         });
-//     } catch (error) {
-//         console.error('Error loading community page:', error);
-//         res.status(500).render('error', { 
-//             message: 'Something went wrong while loading the community page.' 
-//         });
-//     }
-// };
-
-// @desc    Create a new comment on a specific book
-// @route   POST /books/:bookId/comments
-// @access  Private (Logged-in users only)
 const createComment = async (req, res) => {
     try {
         const bookId = req.params.bookId;
@@ -37,21 +10,17 @@ const createComment = async (req, res) => {
             return res.status(404).render('error', { message: 'Book not found' });
         }
 
-        // Create the comment object
         const newComment = new Comment({
             content: req.body.content,
-            user: req.user._id, // the logged-in user
+            user: req.user._id, 
             book: bookId
         });
 
-        // Save comment to database
         await newComment.save();
 
-        // Push the comment ID into the book's comments array and save the book
         book.comments.push(newComment._id);
         await book.save();
 
-        // Redirect back to the book detail page
         res.redirect(`/books/${bookId}`);
     } catch (error) {
         console.error('Error creating comment:', error);
@@ -75,10 +44,8 @@ const deleteComment = async (req, res) => {
             });
         }
 
-        // Delete comment from Comments collection
         await Comment.findByIdAndDelete(commentId);
 
-        // Remove the comment reference from the book's array
         await Book.findByIdAndUpdate(bookId, {
             $pull: { comments: commentId }
         });

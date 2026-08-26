@@ -249,78 +249,20 @@ const communityIndex = async (req, res) => {
 
 
 const communityShow = async (req, res) => {
-
     try {
 
-
-
         const book = await Book.findById(req.params.bookId);
-
-
 
         if (!book) {
-
             return res.status(404).send('Book not found');
-
         }
-
-
 
         res.render('community/show.ejs', { book });
-
-    } catch (err) {
-
-        console.log(err);
-
-        res.redirect('/');
-
-    }
-
-};
-
-// دالة إضافة تعليق
-const addComment = async (req, res) => {
-    try {
-        const book = await Book.findById(req.params.bookId);
-        if (!book) return res.status(404).send('Book not found');
-
-        book.comments.push({
-            user: req.session.user._id,
-            content: req.body.content
-        });
-
-        await book.save();
-        res.redirect(`/community/${req.params.bookId}`);
     } catch (err) {
         console.log(err);
         res.redirect('/');
     }
 };
-
-// دالة إضافة أو إلغاء الإعجاب
-const toggleLike = async (req, res) => {
-    try {
-        const book = await Book.findById(req.params.bookId);
-        if (!book) return res.status(404).send('Book not found');
-
-        const userId = req.session.user._id;
-        const index = book.likes.indexOf(userId);
-
-        if (index === -1) {
-            book.likes.push(userId);
-        } else {
-            book.likes.splice(index, 1);
-        }
-
-        await book.save();
-        res.redirect(`/community/${req.params.bookId}`);
-    } catch (err) {
-        console.log(err);
-        res.redirect('/');
-    }
-};
-
-
 
 module.exports = {
     new: newBook,
@@ -332,6 +274,4 @@ module.exports = {
     update,
     communityIndex,
     communityShow,
-    addComment,
-    toggleLike,
 };

@@ -10,17 +10,13 @@ const signup = async (req, res) => {
 
 const register = async (req, res) => {
   try {
-    // verify if the username alrady exists
     const userInDatabase = await User.findOne({ username: req.body.username });
-    // if the user exists send error msg
     if (userInDatabase) {
       return res.send('Invalid input');
     }
-    // else send error msg
     if (req.body.password !== req.body.confirmPassword) {
       return res.send('Invalid input');
     }
-    // Encrypt the password
     const hashedPassword = bcrypt.hashSync(req.body.password, SALT_ROUDS);
     req.body.password = hashedPassword;
 
@@ -48,7 +44,6 @@ const signin = async (req, res) => {
 const login = async (req, res) => {
   const userInDatabase = await User.findOne({ username: req.body.username });
 
-  // only allow users that exist to login
   if (!userInDatabase) {
     return res.send('Invalid credentials');
   }

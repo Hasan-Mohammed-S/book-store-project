@@ -18,13 +18,11 @@
       <% books.forEach((book) => { %>
         <article class="book-card">
           
-          <!-- Poster Information -->
           <div class="poster-details">
             <% const poster = users.find(u => u.books.some(bId => bId.toString() === book._id.toString())) %>
             <span class="poster-username">Posted by: <%= poster ? poster.username : 'Community Member' %></span>
           </div>
 
-          <!-- Book Card Link -->
           <a href="/community/<%= book._id %>" class="book-card-link">
             <% if (book.image && book.image.url) { %>
               <div class="book-cover-wrapper">
