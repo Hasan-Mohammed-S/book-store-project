@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
     <title><%= book.name %></title>
 </head>
 <body>
@@ -11,29 +12,29 @@
     <div>
         <!-- Publisher Information -->
         <div>
-            <p>Posted by: <strong><%= book.user ? book.user.username : 'Unknown User' %></strong></p>
+            <p>Posted by: <strong><%= poster ? poster.username : 'Unknown User' %></strong></p>
         </div>
 
         <!-- Book Details -->
         <div>
-            <% if (book.image) { %>
-                <img src="<%= book.image %>" alt="<%= book.name %>">
+            <% if (book.image && book.image.url) { %>
+                <img src="<%= book.image.url %>" alt="<%= book.name %>" width="250">
             <% } %>
-            
+
             <div>
                 <h1><%= book.name %></h1>
-                <h3>Author: <%= book.author %></h3>
+                <h3>Author: <%= book.writer %></h3>
                 <p><%= book.description %></p>
 
                 <!-- Like Button (Heart) -->
                 <div>
-                    <% const hasLiked = user && book.likes && book.likes.includes(user._id); %>
+                    <% const hasLiked = user && book.likes.some(like => like.toString() === user._id.toString()); %>
                     <form action="/community/<%= book._id %>/like" method="POST">
-                        <button type="submit">
+                        <button type="submit" aria-label="<%= hasLiked ? 'Unlike book' : 'Like book' %>">
                             <%= hasLiked ? '❤️' : '🤍' %>
                         </button>
                     </form>
-                    <span><%= book.likes ? book.likes.length : 0 %> Likes</span>
+                    <span><%= book.likes.length %> Likes</span>
                 </div>
             </div>
         </div>
@@ -43,22 +44,24 @@
             <h2>Comments</h2>
 
             <!-- Add Comment Form -->
-            <% if (user) { %>
-                <form action="/community/<%= book._id %>/comments" method="POST">
-                    <textarea name="content" rows="3" placeholder="Write a comment..." required></textarea>
-                    <button type="submit">Add Comment</button>
-                </form>
-            <% } else { %>
-                <p><a href="/auth/sign-in">Sign in</a> to leave a comment.</p>
-            <% } %>
+            <form action="/community/<%= book._id %>/comments" method="POST">
+                <textarea name="content" rows="3" placeholder="Write a comment..." required></textarea>
+                <button type="submit">Add Comment</button>
+            </form>
 
             <!-- Comments List -->
             <div>
-                <% if (book.comments && book.comments.length > 0) { %>
-                    <% book.comments.forEach(comment => { %>
+                <% if (comments.length > 0) { %>
+                    <% comments.forEach(comment => { %>
                         <div>
-                            <strong><%= comment.user ? comment.user.username : 'User' %></strong>
-                            <p><%= comment.content %></p>
+                            <strong><%= comment.userId ? comment.userId.username : 'User' %></strong>
+                            <p><%= comment.comment %></p>
+
+                            <% if (comment.userId && comment.userId._id.toString() === user._id.toString()) { %>
+                                <form action="/community/<%= book._id %>/comments/<%= comment._id %>?_method=DELETE" method="POST">
+                                    <button type="submit">Delete Comment</button>
+                                </form>
+                            <% } %>
                         </div>
                     <% }) %>
                 <% } else { %>
@@ -66,7 +69,6 @@
                 <% } %>
             </div>
         </div>
-
     </div>
 </body>
 </html>

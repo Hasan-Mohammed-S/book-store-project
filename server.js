@@ -21,6 +21,8 @@ const upload = require('./config/multer.js');
 
 const authCtrl = require('./controllers/authCtrl');
 const booksCtrl = require('./controllers/booksCtrl');
+const commentsCtrl = require('./controllers/comments');
+
 
 const port = process.env.PORT || 3003;
 
@@ -74,9 +76,12 @@ app.delete('/users/:userId/books/:bookId', booksCtrl.delete);
 
 
 
-app.get('/community',booksCtrl.communityIndex);
 
+app.get('/community',booksCtrl.communityIndex);
 app.get('/community/:bookId', booksCtrl.communityShow)
+app.post('/community/:bookId/like', booksCtrl.toggleLike);
+app.post('/community/:bookId/comments', commentsCtrl.createComment);
+app.delete('/community/:bookId/comments/:commentId', commentsCtrl.deleteComment);
 
 app.listen(port,   () => {
     console.log(`Server is running on http://localhost:${port}`);

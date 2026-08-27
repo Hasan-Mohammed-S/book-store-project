@@ -1,13 +1,37 @@
-<nav>
-    <a href="/">Home</a>
-    <% if(user) { %>
-        <a href="/users/<%=user._id%>/books">View my books</a>
-        <a href="/community">Community</a>
+<header class="site-header">
+    <a href="/" class="site-title">Let's Read</a>
 
-        <a href="/auth/sign-out">Sign Out</a>
+    <nav class="navbar">
+        <a href="/">Home</a>
+
+        <% if (user) { %>
+
+            <a href="/users/<%= user._id %>/books">
+                My Books
+            </a>
+
+            <a href="/community">
+                Community
+            </a>
+
+            <a href="/users/<%= user._id %>/books/new">
+                Add Book
+            </a>
+
+            <a href="/auth/sign-out">
+                Sign Out
+            </a>
+
         <% } else { %>
 
-            <a href="/auth/sign-in">Sign In</a>
-            <a href="/auth/sign-up">Sign Up</a>
-            <% } %>
-</nav>
+            <a href="/auth/sign-in">
+                Sign In
+            </a>
+
+            <a href="/auth/sign-up">
+                Sign Up
+            </a>
+
+        <% } %>
+    </nav>
+</header>

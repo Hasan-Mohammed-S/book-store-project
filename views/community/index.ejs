@@ -1,10 +1,21 @@
-<%- include('../partials/_navbar') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/style.css">
+    <title>My Books</title>
+</head>
 
+
+<body>
+<%- include('../partials/_navbar') %>
+<link rel="stylesheet" href="/css/style.css">
 <main class="browse-container">
   <div class="browse-header">
     <h1>Community Recommendations</h1>
     <% if (user) { %>
-      <a href="/books/new" class="btn primary-btn">Share a Book</a>
+      <a href="/users/<%= user._id %>/books/new" class="btn primary-btn">Share a Book</a>
     <% } %>
   </div>
 
@@ -47,3 +58,4 @@
   <% } %>
 </main>
 
+</body>

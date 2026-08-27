@@ -1,8 +1,7 @@
 const User = require('../models/user.js');
 const Book = require('../models/book.js');
+const Comment = require('../models/comment.js');
 const cloudinary = require('../config/cloudinary.js');
-
-
 
 const uploadImage = (fileBuffer) => {
     return new Promise((resolve, reject) => {
@@ -218,6 +217,7 @@ const deleteBook = async (req, res) => {
             await cloudinary.uploader.destroy(book.image.publicId);
         }
 
+        await Comment.deleteMany({ bookId: req.params.bookId });
         await Book.findByIdAndDelete(req.params.bookId);
 
         user.books.pull(req.params.bookId);
@@ -230,37 +230,71 @@ const deleteBook = async (req, res) => {
     }
 };
 
-//comminty controllers
-
-
+// Community controllers
 const communityIndex = async (req, res) => {
+    try {
+        const books = await Book.find();
+        const users = await User.find();
 
-  const books = await Book.find();
-  const users = await User.find();
-
-  res.render("community/index.ejs", {
-    books: books,
-    users
-
-  });
-
-}
-
-
+        res.render('community/index.ejs', {
+            books,
+            users,
+        });
+    } catch (err) {
+        console.log(err);
+        res.redirect('/');
+    }
+};
 
 const communityShow = async (req, res) => {
     try {
-
         const book = await Book.findById(req.params.bookId);
 
         if (!book) {
             return res.status(404).send('Book not found');
         }
 
-        res.render('community/show.ejs', { book });
+        const comments = await Comment.find({ bookId: book._id })
+            .populate('userId', 'username')
+            .sort({ createdAt: -1 });
+
+        const poster = await User.findOne({ books: book._id }).select('username');
+
+        res.render('community/show.ejs', {
+            book,
+            comments,
+            poster,
+        });
     } catch (err) {
         console.log(err);
-        res.redirect('/');
+        res.redirect('/community');
+    }
+};
+
+const toggleLike = async (req, res) => {
+    try {
+        const book = await Book.findById(req.params.bookId);
+
+        if (!book) {
+            return res.status(404).send('Book not found');
+        }
+
+        const userId = req.session.user._id.toString();
+        const hasLiked = book.likes.some(
+            (likeUserId) => likeUserId.toString() === userId
+        );
+
+        if (hasLiked) {
+            book.likes.pull(req.session.user._id);
+        } else {
+            book.likes.push(req.session.user._id);
+        }
+
+        await book.save();
+        res.redirect(`/community/${book._id}`);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send('Failed to update like.');
     }
 };
 
@@ -274,4 +308,5 @@ module.exports = {
     update,
     communityIndex,
     communityShow,
+    toggleLike,
 };

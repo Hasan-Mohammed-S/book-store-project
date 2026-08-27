@@ -32,6 +32,13 @@ const bookSchema = new mongoose.Schema({
             required: true,
         },
     },
+
+    likes: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+        },
+    ],
 });
 
 const Book = mongoose.model("book", bookSchema);

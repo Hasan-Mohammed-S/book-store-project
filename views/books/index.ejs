@@ -3,13 +3,27 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/style.css">
     <title>My Books</title>
 </head>
 <body>
     <%- include('../partials/_navbar.ejs') %>
 
-    <h1>Welcome to my books</h1>
-    <a href="/users/<%= user._id %>/books/new">Add a new book</a>
+  <div class="book-list">
+    <h1>Welcome to My Books</h1>
+
+    <div style="text-align: center;">
+        <a
+            class="btn"
+            href="/users/<%= user._id %>/books/new"
+        >
+            Add a New Book
+        </a>
+    </div>
+
+    <ul>
+
+<ul>
 
     <ul>
         <% books.forEach((book) => { %>
